@@ -20,28 +20,6 @@ mod_ids = [modid]
 def merge_dicts(a, b):
     return {key: value for (key, value) in itertools.chain(a.items(), b.items())}
 
-def calculate_stats():
-    rb = xlrd.open_workbook(weapons_xls_path, formatting_info=True)
-    sheet = rb.sheet_by_index(0)
-    target_hp = 20.0
-    weapons = []
-    for rownum in range(1, sheet.nrows):
-        row = sheet.row_values(rownum)
-        expected_rating = float(row[22])
-        weapon = Weapon.of(row)
-        if weapon.modid not in mod_ids:
-            continue
-        # print(weapon.type_name, calculate_rating(weapon), row[19])
-        weapon.basic_damage = round(float(calculate_damage(weapon, expected_rating, target_hp)[0]), 2)
-        # weapon.basic_speed = round(float(calculate_speed(weapon, expected_rating, target_hp)[0]), 2)
-        weapons.append(weapon)
-    # for weapon in weapons:
-    #     print(str(weapon.basic_damage).replace(".", ",") + "\t" + str(weapon.basic_speed).replace(".", ","))
-    for weapon in weapons:
-        print(calculate_rating(weapon))
-    # for weapon in weapons:
-    #     print(weapon.__dict__)
-
 def generate_armor_types(armor, configured=True):
     if not os.path.exists(armor_dir):
         os.makedirs(armor_dir)
