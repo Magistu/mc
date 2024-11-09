@@ -1,7 +1,5 @@
 import itertools
 from collections import Counter
-from functools import reduce
-from math import ceil
 
 from armor_set import ArmorSet
 from code_helper import *
@@ -9,7 +7,6 @@ from constants import *
 from decoration import Decoration
 from smithing_recipes_gen import generate_smithing_recipes
 from weapon import Weapon
-from scipy.optimize import fsolve
 import json
 import warnings
 import xlrd
@@ -22,34 +19,6 @@ mod_ids = [modid]
 
 def merge_dicts(a, b):
     return {key: value for (key, value) in itertools.chain(a.items(), b.items())}
-
-def calculate_rating(weapon, basic_damage=None, basic_speed=None, target_hp=20.0, material_bonus_damage=2.5, material_density=2.0):
-    if basic_damage is None:
-        basic_damage = weapon.basic_damage
-    if basic_speed is None:
-        basic_speed = weapon.basic_speed
-    speed = basic_speed - material_density * weapon.size_factor
-    damage = 1.0 + basic_damage + 1.6 * material_bonus_damage / basic_speed + 5 * weapon.horseback_bonus
-    dps = damage * speed
-    n_crit_hits = ceil(target_hp / (1.5 * damage))
-    if n_crit_hits == 1:
-        return 0.0
-    crit_dps_vs_20_hp = target_hp * speed / (n_crit_hits - 1)
-    damage_rating = 0.8 * dps + 0.2 * crit_dps_vs_20_hp
-    bonus_reach_rating = 1.5 * weapon.bonus_reach
-    piercing_rating = 0.008 * weapon.piercing * dps
-    two_handed_rating = 1.0 - 0.5 * weapon.two_handed
-    block_rating = 0.1 * weapon.max_block_damage + 0.05 * weapon.weight
-    dismounts_rating = 0.2 * weapon.dismounts
-    flamebladed_rating = 0.05 * damage * weapon.flamebladed
-    rating = damage_rating + bonus_reach_rating + piercing_rating + two_handed_rating + block_rating + dismounts_rating + flamebladed_rating
-    return rating
-
-def calculate_damage(weapon, rating, target_hp):
-    return fsolve(lambda basic_damage: calculate_rating(weapon, basic_damage, weapon.basic_speed, target_hp) - rating, 1.0)
-
-def calculate_speed(weapon, rating, target_hp):
-    return fsolve(lambda basic_speed: calculate_rating(weapon, weapon.basic_damage, basic_speed, target_hp) - rating, 0.5)
 
 def calculate_stats():
     rb = xlrd.open_workbook(weapons_xls_path, formatting_info=True)
