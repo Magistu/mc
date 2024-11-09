@@ -10,8 +10,8 @@ class ArmorPiece:
         self.armor_type = armor_type
         self.id = id
         self.clazz = clazz
-        self.durability = durability
-        self.defense = defense
+        self.durability = int(durability) if durability else 0
+        self.defense = int(defense) if defense else 0
         self.color = color
 
 
@@ -19,9 +19,9 @@ class ArmorSet:
     
     def __init__(self, type_name, modid, id, model_id, helmet_id, chestplate_id, leggings_id, boots_id, helmet_class, chestplate_class, leggings_class, boots_class, toughness, knockback_resistance, boots_durability, leggings_durability, chest_durability, helmet_durability, boots_defense, leggings_defense, chest_defense, helmet_defense, enchantment_value, sound, repair_material, model_class_name, helmet_color, chest_color, leggings_color, boots_color):
         self.helmet = ArmorPiece(head, "helmet", helmet_id, helmet_class, helmet_durability, helmet_defense, helmet_color)
-        self.chestplate = ArmorPiece(head, "chestplate", chestplate_id, chestplate_class, chest_durability, chest_defense, chest_color)
-        self.leggings = ArmorPiece(head, "leggings", leggings_id, leggings_class, leggings_durability, leggings_defense, leggings_color)
-        self.boots = ArmorPiece(head, "boots", boots_id, boots_class, boots_durability, boots_defense, boots_color)
+        self.chestplate = ArmorPiece(chest, "chestplate", chestplate_id, chestplate_class, chest_durability, chest_defense, chest_color)
+        self.leggings = ArmorPiece(legs, "leggings", leggings_id, leggings_class, leggings_durability, leggings_defense, leggings_color)
+        self.boots = ArmorPiece(feet, "boots", boots_id, boots_class, boots_durability, boots_defense, boots_color)
 
         self.type_name = type_name
         self.modid = modid
@@ -32,7 +32,7 @@ class ArmorSet:
         self.knockback_resistance = knockback_resistance
         self.enchantment_value = enchantment_value
         self.sound = sound
-        self.repair_material = repair_material
+        self.repair_material = repair_material if not minecraft_version.startswith("1.19") else repair_material.replace("Registries.ITEM", "Registry.ITEM_REGISTRY")
         self.model_class_name = model_class_name
         self.config_class_name = to_camel_case(self.type_name.lower()) + 'Config'
         self.config_field_name = to_camel_case(self.type_name.lower())
@@ -47,10 +47,10 @@ class ArmorSet:
         return [p.id for p in self.slots.values()]
 
     def armor_type_code(self, configured=True):
-        return f'public static final ArmorType {self.type_name.upper()} = new ArmorType(new ResourceLocation(\"{self.modid}\", \"{self.id}\"), new ResourceLocation(\"{self.model_id}\"), {self.toughness}f, {self.knockback_resistance}f, new Integer[] {{ {self.boots.durability}, {self.leggings.durability}, {self.chestplate.durability}, {self.helmet.durability} }}, new Integer[] {{ {self.boots.defense}, {self.leggings.defense}, {self.chestplate.defense}, {self.helmet.defense} }}, {self.enchantment_value}, {self.sound}, {"ARMOR_CONFIG." + self.config_field_name if configured else "true"}, {self.repair_material});\n'
+        return f'public static final ArmorType {self.type_name.upper()} = new ArmorType(new ResourceLocation(\"{self.modid}\", \"{self.id}\"), new ResourceLocation(\"{self.model_id}\"), {self.toughness}f, {self.knockback_resistance}f, new Integer[] {{ {self.boots.durability}, {self.leggings.durability}, {self.chestplate.durability}, {self.helmet.durability} }}, new Integer[] {{ {self.boots.defense}, {self.leggings.defense}, {self.chestplate.defense}, {self.helmet.defense} }}, {self.enchantment_value}, {self.sound}, {"ARMOR_CONFIG." + self.config_field_name + ".enabled" if configured else "true"}, {self.repair_material});\n'
 
     def register_armor_code(self):
-        return '\t'.join(f'public static final @Nullable RegistrySupplier<MedievalArmorItem> {p.id.upper()} = INSTANCE.add{p.clazz}(\"{p.id.lower()}\", {armor_types_class}.{self.type_name.upper()}, ArmorItem.Type.{slot.upper()}, new Item.Properties(){".tab(ModCreativeTabs.ARMOR)" if minecraft_version.startswith("1.19") else ""}{f", {p.color}" if p.color else ""});\n' for slot, p in self.slots.items())
+        return '\t'.join(f'public static final @Nullable RegistrySupplier<MedievalArmorItem> {p.id.upper()} = INSTANCE.add{p.clazz}(\"{p.id.lower()}\", {armor_types_class}.{self.type_name.upper()}, {"ArmorItem.Type" if not minecraft_version.startswith("1.19") else "EquipmentSlot"}.{slot.upper()}, new Item.Properties(){".tab(ModCreativeTabs.ARMOR)" if minecraft_version.startswith("1.19") else ""}{f", {p.color}" if p.color else ""});\n' for slot, p in self.slots.items() if "Wearable" not in p.clazz)
 
     def config_declaration_code(self):
         return f'''@ConfigEntry.Gui.CollapsibleObject
@@ -79,8 +79,8 @@ class ArmorSet:
 			this.{piece.armor_type}Defense = {piece.defense};'''
         code += code_2
         code += '''
-        }}
-    }}'''
+        }
+    }'''
         return code
     
     def config_assignment_code(self):

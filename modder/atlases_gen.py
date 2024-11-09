@@ -1,7 +1,5 @@
 import json
 
-from sklearn.metrics import roc_auc_score
-
 materials = ("wood", "stone", "gold", "iron", "diamond", "netherite", "tin", "copper", "silver", "bronze", "steel")
 shields_0 = ("heatershield", "tartsche", "ellipticalshield", "roundshield", "pavese", "kiteshield")
 shields_1 = ("target", "buckler", "rondache")
@@ -10,8 +8,6 @@ results_dir = "../files_processing/new_files"
 
 
 def main():
-    roc_auc_score
-    
     shield_patterns = {"sources": []}
     for shield in shields_0:
         for material in materials:

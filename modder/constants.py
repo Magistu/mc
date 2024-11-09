@@ -1,5 +1,5 @@
-minecraft_version = "1.20.2"
-
+# minecraft_version = "1.20.2"
+minecraft_version = "1.19.2"
 
 # modid = "slavicarmory"
 # main_package = f"magistuarmory.{modid}"
@@ -32,14 +32,27 @@ layers_class = "AddonModels"
 # layers_class = "ModModels"
 # en_us_source_path = f"/home/lut/Java/modding/Epic-Knights-{minecraft_version}-crossversion/common/src/main/resources/assets/{modid}/lang/en_us.json"
 
-# head = "HEAD"
-# body = "BODY"
-# legs = "LEGS"
-# feet = "FEET"
-head = "HELMET"
-body = "CHESTPLATE"
-legs = "LEGGINGS"
-feet = "BOOTS"
+head = "HEAD"
+chest = "CHEST"
+legs = "LEGS"
+feet = "FEET"
+helmet = "HELMET"
+chestplate = "CHESTPLATE"
+leggings = "LEGGINGS"
+boots = "BOOTS"
+
+slots_dicts = {
+    helmet: head,
+    chestplate: chest,
+    leggings: legs,
+    boots: feet
+}
+
+if not minecraft_version.startswith("1.19"):
+    head = helmet
+    chest = chestplate
+    legs = leggings
+    feet = boots
 
 fabric = "fabric"
 forge = "forge"

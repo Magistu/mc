@@ -14,6 +14,8 @@ class SmithingType:
 
 
 gilded_prefixes = ["gilded_", "ceremonial", "ceremonial_"]
+fully_gilding_addition_forge = {"tag": "forge:ingots/gold"} if not minecraft_version.startswith("1.19") else {"item": "magistuarmoryaddon:fully_gilding_template"}
+fully_gilding_addition_fabric = {"tag": "c:gold_ingots"} if not minecraft_version.startswith("1.19") else {"item": "magistuarmoryaddon:fully_gilding_template"}
 
 smithing_types = [
     SmithingType("gilding", [""], gilded_prefixes, {"tag": "forge:ingots/gold"}, {"tag": "c:gold_ingots"}, "magistuarmory:gilding_template"),
@@ -25,7 +27,7 @@ smithing_types = [
     SmithingType("darkening", ["dark_"], ["darkblued_"], {"item": "minecraft:lapis_lazuli"}, {"item": "minecraft:lapis_lazuli"}, "magistuarmory:darkening_template"),
     SmithingType("darkening", ["gilded_dark_", "dark_gilded_"], ["gilded_darkblued_", "darkblued_gilded_"], {"item": "minecraft:lapis_lazuli"}, {"item": "minecraft:lapis_lazuli"}, "magistuarmory:darkening_template"),
     SmithingType("gilding", ["darkblued_"], ["gilded_darkblued_", "darkblued_gilded_"], {"tag": "forge:ingots/gold"},{"tag": "c:gold_ingots"}, "magistuarmory:gilding_template"),
-    SmithingType("fully_gilding", ["", "gilded_", "ceremonial", "ceremonial_", "gilded_dark_", "dark_", "darkblued_", "silvered_dark_", "dark_silvered_", "bronzed_", "gilded_darkblued_", "darkblued_gilded_"], ["fully_gilded_"], {"tag": "forge:ingots/gold"},{"tag": "c:gold_ingots"}, "magistuarmory:fully_gilding_template"),
+    SmithingType("fully_gilding", ["", "gilded_", "ceremonial", "ceremonial_", "gilded_dark_", "dark_", "darkblued_", "silvered_dark_", "dark_silvered_", "bronzed_", "gilded_darkblued_", "darkblued_gilded_"], ["fully_gilded_"], fully_gilding_addition_forge, fully_gilding_addition_fabric, "magistuarmory:fully_gilding_template"),
 ]
 
 smithing_dict = dict()

@@ -1,14 +1,14 @@
 import re
 
-from code_helper import to_snake_case
+from modder.code_helper import to_snake_case
 
 modid = "magistuarmoryaddon"
 
-addon_models_path = 'generated/magistuarmoryaddon/AddonModels.java'
-mod_models_path = 'generated/magistuarmoryaddon/ModModels.java'
-armor_config_path = 'generated/magistuarmoryaddon/ArmorConfig.java'
-armor_types_path = 'generated/magistuarmoryaddon/AddonArmorTypes.java'
-items_path = 'generated/magistuarmoryaddon/AddonItems.java'
+addon_models_path = 'backup/generated/magistuarmoryaddon/AddonModels.java'
+mod_models_path = 'backup/generated/magistuarmoryaddon/ModModels.java'
+armor_config_path = 'backup/generated/magistuarmoryaddon/ArmorConfig.java'
+armor_types_path = 'backup/generated/magistuarmoryaddon/AddonArmorTypes.java'
+items_path = 'backup/generated/magistuarmoryaddon/AddonItems.java'
 
 armor_model_pattern = re.compile(r'INSTANCE\.addArmorModel\("(\w+)", (\w+)::createLayer\);')
 armor_type_pattern = re.compile(r'(\w+) = new ArmorType\(new ResourceLocation\("(\w+)", "(\w+)"\), new ResourceLocation\("([\w_:]+)"\), ARMOR_CONFIG\.\w+\.toughness, (\d+\.?\d+)f, new Integer\[] \{[^}]+}, new Integer\[] \{[^}]+}, (\d+), (\w+\.\w+), ARMOR_CONFIG\.\w+\.enabled, (.+)\);')
@@ -103,8 +103,8 @@ def main():
 			row[20] = match[5]
 			row[15] = match[6]
 			row[19] = match[7]
-			row[14] = match[7]
-			row[18] = match[8]
+			row[14] = match[8]
+			row[18] = match[9]
 
 	for row in armor_dict.values():
 		print("\t".join(row))

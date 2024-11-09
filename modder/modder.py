@@ -29,7 +29,7 @@ import com.{main_package}.{main_class};
 import com.{main_package}.config.ArmorConfig;
 import com.magistuarmory.item.armor.ArmorType;
 import dev.architectury.platform.Platform;
-import net.minecraft.core.registries.Registries;
+{"import net.minecraft.core.registries.Registries;" if not minecraft_version.startswith("1.19") else "import net.minecraft.core.Registry;"}
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
@@ -119,7 +119,9 @@ public class {items_class} extends ModItemsProvider
         code += f"\t{weapon.register_weapon_code()}\n"
     code += "\n\n\t//Armor\n"
     for armor_set in armor:
-        code += f"\t{armor_set.register_armor_code()}\n"
+        register_armor_code = armor_set.register_armor_code()
+        if register_armor_code:
+            code += f"\t{register_armor_code}\n"
     code += "\n\n\t//Decoration\n"
     for decoration in decorations:
         code += f"\t{decoration.register_decoration_code()}\n"
@@ -154,8 +156,8 @@ public class ArmorConfig implements ConfigData
     for armor_set in armor:
         code += f"\t\t{armor_set.config_assignment_code()}\n"
     code += "\t}\n\n"
-    # for armor_set in armor:
-    #     code += f"\t{armor.armor_config_code()}\n"
+    for armor_set in armor:
+        code += f"\t{armor_set.armor_config_code()}\n"
     code += "}\n"
     with open(armor_config_path, "w") as fout:
         fout.write(code)
@@ -414,11 +416,12 @@ def generate():
         if decoration.modid not in mod_ids:
             continue
         decorations.append(decoration)
-
-    items = get_items(weapons, armor, decorations)
     generate_armor_types(armor)
     generate_armor_config(armor)
     generate_armor_models(armor)
+
+    items = get_items(weapons, armor, decorations)
+
     generate_decoration_models(decorations)
     generate_layers(armor, decorations)
     generate_blasting_recipes(weapons, armor)
