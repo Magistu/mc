@@ -1,8 +1,7 @@
 import re
 import torch
 
-from collections import Counter, OrderedDict
-from typing import Union, Iterable, Optional, List
+from collections import Counter
 from torch import Tensor
 from torch.nn import functional as F
 from copy import deepcopy
