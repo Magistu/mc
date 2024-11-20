@@ -1,3 +1,4 @@
+from common_utils import *
 from utils import *
 from paths import *
 import os
@@ -7,14 +8,14 @@ def save_img(img, path):
 	as_PilImg(img).save(path)
 
 
-def execute_for_batch(images_dir, tasks, results_dir, naming_fn=None):
+def execute_for_batch(images_dir, tasks, results_dir, path_fn=None):
 	for image_name in os.listdir(images_dir):
 		img = Image.open(images_dir + '/' + image_name)
 		for i, (task, args) in enumerate(tasks):
 			img = task(img, *args)
-		new_name = image_name if naming_fn is None else naming_fn(image_name)
-		save_img(img, results_dir + '/' + new_name)
-		print(new_name)
+		path = results_dir + '/' + image_name if path_fn is None else path_fn(image_name)
+		save_img(img, path)
+		print(path)
 
 
 def merge_from_dirs(bg_dir, fg_dir, results_dir):
@@ -27,24 +28,8 @@ def merge_from_dirs(bg_dir, fg_dir, results_dir):
 
 
 def main():
-	# tasks = ((resize, [1503, 864]),)
-	# 
-	# tasks = ((round_down_channel, [3, 40]),)
-	# 
-	# tasks = ((convert_to_png, [], relocate_channel, [0, [3, ]]),)
-
-	tasks = ((convert_to_png, []),)
-
-	# tasks = ((convert_to_png, []),
-	#          (clear_area, [5, 0, 6, 16]),
-	# 		 (clear_area, [4, 10, 8, 6]),)
-
-	# tasks = ((crop, [679, 322, 1248, 645]),)
-	# 
-	# tasks = ((crop, [405, 157, 1532, 805], remove_background, []),)
-
+	tasks = ((convert_to_png, []))
 	execute_for_batch(images_dir, tasks, results_dir)
-
 
 # files_tasks = ((replace_name, [("edge": "")]),)
 # files_factory.execute_batch(results_dir, files_tasks, results_dir)

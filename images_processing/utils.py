@@ -1,30 +1,10 @@
-import os
-from typing import Union
 from PIL import Image
-from PIL.Image import Image as PILImage
 import numpy as np
 import colorsys
+from common_utils import as_NdArray, as_PilImg
 
 rgb_to_hsv = np.vectorize(colorsys.rgb_to_hsv)
 hsv_to_rgb = np.vectorize(colorsys.hsv_to_rgb)
-
-
-def as_PilImg(data: Union[bytes, PILImage, np.ndarray]):
-    if isinstance(data, PILImage):
-        return data
-    elif isinstance(data, np.ndarray):
-        return Image.fromarray(data)
-    else:
-        raise ValueError("Input type {} is not supported.".format(type(data)))
-
-
-def as_NdArray(data: Union[bytes, PILImage, np.ndarray], dtype=None):
-    if isinstance(data, PILImage):
-        return np.array(data, dtype)
-    elif isinstance(data, np.ndarray):
-        return data if dtype is None else data.astype(dtype)
-    else:
-        raise ValueError("Input type {} is not supported.".format(type(data)))
 
 
 def select(data, x, y, size_x, size_y):
@@ -72,10 +52,6 @@ def displace(data, x0, y0, size_x, size_y, x1, y1):
 
 def pick_color(data, position):
     return as_NdArray(data)[position[1], position[0], :]
-
-
-def convert_to_png(data):
-    return np.array(as_PilImg(data).convert('RGBA'))
 
 
 # def flip_vertically(data, x, y, size_x, size_y):
@@ -156,7 +132,6 @@ def round_up_channel(data, index, threshold):
 
 
 def round_down_channel(data, index, threshold):
-
     def f(ele):
         if ele[index] < threshold:
             ele[index] = 0
@@ -192,5 +167,6 @@ def remove_background(data):
     return rembg.remove(data)
 
 
-def all_from_dir(dir, format='png'):
-    return (e.split('.')[0] for e in os.listdir(dir) if e.split('.')[-1] == format)
+def replace_palette(data, source_material, material):
+    from palette_replacer import replace_palette
+    return replace_palette(data, source_material, material)

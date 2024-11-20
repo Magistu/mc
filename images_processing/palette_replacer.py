@@ -1,15 +1,23 @@
-import os
 import numpy as np
 import torch
 from torch import nn
 from PIL import Image
-
-from images_processing.utils import as_PilImg, convert_to_png, all_from_dir
+from common_utils import convert_to_png
 from nn_helper import get_device, train, argmax_metric, predict
 from paths import *
 
 
 device = get_device()
+replacer_cache = {}
+
+
+class PaletteReplacer:
+    def __init__(self, source_material):
+        self.source_material = source_material
+        self.source_palette = Image.open(palettes_dir + '/' + source_material + '_palette.png')
+        self.palette_size = np.array(self.source_palette).shape[1]
+        source_pal = np.array(self.source_palette, dtype=float)[:, :, :3].reshape(self.palette_size, 3) / 255
+        self.qualifier = create_qualifier(source_pal)
 
 
 def mix(ratio, pal, pal_size):
@@ -64,27 +72,11 @@ def get_palette(image, pal_size):
     return np.reshape(np.array(palette.getpalette()[:3 * pal_size]).astype(np.uint8), (1, pal_size, 3))
 
 
-def main():
-    palettes_dir = 'palette'
-    source_material = 'steel'
-    materials = ('gilded',)
-    # materials = ('wood', 'stone', 'gold', 'iron', 'netherite', 'tin', 'copper', 'silver', 'bronze')
-    images = all_from_dir(images_dir)
-
-    source_palette = Image.open(palettes_dir + '/' + source_material + '_palette.png')
-    palette_size = np.array(source_palette).shape[1]
-    source_pal = np.array(source_palette, dtype=float)[:, :, :3].reshape(palette_size, 3) / 255
-    qualifier = create_qualifier(source_pal)
-
-    for image in images:
-        img = np.array(Image.open(images_dir + '/' + image + '.png'))
-        color_distribution = get_color_distribution(img, qualifier, palette_size)
-        for material in materials:
-            new_pal = np.array(Image.open('palette/' + material + '_palette.png'), dtype=float)[:, :, :3].reshape(palette_size, 3)
-            name = image.replace(source_material, material) + '.png'
-            Image.fromarray(redistribute_colors(img, color_distribution, new_pal)).save(results_dir + '/' + name)
-            print(name, 'completed')
-
-
-if __name__ == "__main__":
-    main()
+def replace_palette(data, source_material, new_material):
+    if source_material not in replacer_cache:
+        replacer_cache[source_material] = PaletteReplacer(source_material)
+    replacer = replacer_cache[source_material]
+    color_distribution = get_color_distribution(data, replacer.qualifier, replacer.palette_size)
+    new_pal = convert_to_png(Image.open(palettes_dir + '/' + new_material + '_palette.png'), False)
+    new_pal = new_pal.reshape(replacer.palette_size, 3)
+    return redistribute_colors(data, color_distribution, new_pal)
